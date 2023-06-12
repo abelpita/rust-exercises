@@ -1,6 +1,14 @@
 use std::io;
 use time::{self, Month};
 
+fn read_user_input() -> String {
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Failed to read line");
+    input.trim().to_string()
+}
+
 pub fn run() {
     println!("Welcome to the time calculator");
     let mut continue_loop: bool = true;
@@ -11,12 +19,7 @@ pub fn run() {
         println!("2. Convert Gigaseconds to years, days, hours, minutes and seconds");
         println!("3. Multiply seconds by 10 raised to the power X and then convert to years, days, hours, minutes and seconds");
         println!("4. Exit");
-        let mut choice = String::new();
-        io::stdin()
-            .read_line(&mut choice)
-            .expect("Failed to read line");
-        let choice: u8 = choice.trim().parse().expect("Please type a number!");
-        match choice {
+        match read_user_input().parse().expect("Please type a number!") {
             1 => add_gigaseconds(),
             2 => convert_gigaseconds(),
             3 => convert_seconds(),
@@ -27,11 +30,7 @@ pub fn run() {
             break;
         }
         println!("Do you want to make another operation? (y/n)");
-        let mut choice = String::new();
-        io::stdin()
-            .read_line(&mut choice)
-            .expect("Failed to read line");
-        if choice.trim() != "y" {
+        if read_user_input() != "y" {
             continue_loop = false;
         }
     }
@@ -62,22 +61,14 @@ fn string_to_date(string: &str) -> time::Date {
 
 fn add_gigaseconds() {
     println!("Capture the initial date in the following format: YYYY-MM-DD");
-    let mut initial_date = String::new();
-    io::stdin()
-        .read_line(&mut initial_date)
-        .expect("Failed to read line");
-    let initial_date = string_to_date(&initial_date);
+    let initial_date = string_to_date(&(read_user_input()));
 
     println!("Capture the gigaseconds to add:");
-    let mut gigaseconds = String::new();
-    io::stdin()
-        .read_line(&mut gigaseconds)
-        .expect("Failed to read line");
-    let gigaseconds: i64 = gigaseconds
-        .trim()
-        .parse()
-        .expect("Please type a valid number!");
-    let seconds: i64 = gigaseconds * 1_000_000_000;
+    let seconds: i64 = gigaseconds_to_seconds(
+        read_user_input()
+            .parse()
+            .expect("Please type a valid number!"),
+    ) as i64;
     let duration: time::Duration = time::Duration::seconds(seconds);
     let final_date = initial_date + duration;
     println!("Final date: {}", final_date);
@@ -131,10 +122,7 @@ fn print_duration(duration: (u64, u64, u64, u64, u64, u64)) {
 fn convert_gigaseconds() {
     println!("Capture the gigaseconds to convert:");
 
-    let mut gigaseconds = String::new();
-    io::stdin()
-        .read_line(&mut gigaseconds)
-        .expect("Failed to read line");
+    let gigaseconds = read_user_input();
     let gigaseconds: u64 = gigaseconds
         .trim()
         .parse()
@@ -147,12 +135,12 @@ fn convert_gigaseconds() {
 
 fn convert_seconds() {
     println!("First, let's determine how many seconds. We'll multiply a number of seconds by 10 raised to the power X");
-    println!("What is the value of X?");
-    let mut x = String::new();
-    io::stdin().read_line(&mut x).expect("Failed to read line");
-    let x: u32 = x.trim().parse().expect("Please type a valid number!");
+    println!("To what value do you want to raise 10^X?");
+    let power: u32 = read_user_input()
+        .parse()
+        .expect("Please type a valid number!");
     let mut value: String = String::new();
-    let value_string: String = 10u128.pow(x).to_string();
+    let value_string: String = 10u128.pow(power).to_string();
     for i in 0..value_string.len() {
         if (value_string.len() - i) % 3 == 0 && i != 0 {
             value.push_str(",");
@@ -161,16 +149,14 @@ fn convert_seconds() {
     }
     println!(
         "Alright. We'll calculate 10^{}, which equals to {}",
-        x, value
+        power, value
     );
     println!("Now, capture the number of seconds:");
-    let mut seconds = String::new();
-    io::stdin()
-        .read_line(&mut seconds)
-        .expect("Failed to read line");
-    let mut seconds: u64 = seconds.trim().parse().expect("Please type a valid number!");
-    println!("{} seconds times 10^{} equals to:", seconds, x);
-    seconds = seconds * 10u128.pow(x) as u64;
+    let seconds: u64 = read_user_input()
+        .parse()
+        .expect("Please type a valid number!");
+    println!("{} seconds times 10^{} equals to:", seconds, power);
+    let seconds = seconds * 10u128.pow(power) as u64;
     print_duration(seconds_to_years_months_days_hours_minutes_seconds(
         seconds as f64,
     ));
