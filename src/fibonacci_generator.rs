@@ -27,19 +27,19 @@ pub fn run() {
 }
 
 fn get_nth_fibonacci(n: u32) -> u128 {
-    let mut nth_fibonacci: u128 = 0;
+    let mut next_fib: u128 = 0;
     match n {
         0 => 0,
         1 => 1,
         _ => {
-            let mut f_2 = 0;
-            let mut f_1 = 1;
+            let mut prev_fib = 0;
+            let mut current_fib = 1;
             for _ in 2..=n {
-                nth_fibonacci = f_1 + f_2;
-                f_2 = f_1;
-                f_1 = nth_fibonacci;
+                next_fib = current_fib + prev_fib;
+                prev_fib = current_fib;
+                current_fib = next_fib;
             }
-            nth_fibonacci
+            next_fib
         }
     }
 }
